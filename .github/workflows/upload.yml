@@ -1,0 +1,29 @@
+name: Create Archive
+on: 
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'tags to create build'
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions: write-all
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+    - name: Run build
+      run: forge build
+    - name: Archive Release
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        type: '7z'
+        filename: 'archive.z'
+    - name: create release and upload assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          archive.z
+        tag_name: ${{ github.event.inputs.tags }}
